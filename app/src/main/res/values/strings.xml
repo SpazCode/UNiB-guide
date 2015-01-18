@@ -1,3 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">UNiB Wiki Guide</string>
+    <string name="title_activity_character_select">CharacterSelect</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main_menu">MainMenu</string>
+    <string name="main_menu_patch_button">Patches</string>
+    <string name="main_menu_character_button">Characters</string>
+    <string name="main_menu_systems_button">Systems</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_character_view">CharacterView</string>
+    <string name="CharacterNameHeader">Name:</string>
+    <string name="placeholder">PLACEHOLDER</string>
+    <string name="CharacterHealthHeader">Health:</string>
+    <string name="CharacterTraitHeader">Trait:</string>
+    <string name="MovesHeader">Moves</string>
+    <string name="CombosHeader">Combos</string>
+
 </resources>

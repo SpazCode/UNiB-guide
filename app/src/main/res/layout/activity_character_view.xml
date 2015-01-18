@@ -1,0 +1,119 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@drawable/bg00"
+    tools:context="com.stuartsullivan.unibwikiguide.CharacterView">
+
+    <ScrollView
+        android:id="@+id/TableScroller"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/CharacterHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ffff"
+                android:textAllCaps="true"
+                android:textSize="20sp"
+                android:text="@string/placeholder"
+                android:layout_marginRight="30dp"/>
+
+            <TableLayout
+                android:id="@+id/CharacterBreakdownTable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/CharacterHeader"
+                android:stretchColumns="*">
+
+                <TableRow android:id="@+id/CharacterHealthRow"
+                    android:layout_marginBottom="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView android:id="@+id/CharacterHealthHeader"
+                        android:text="@string/CharacterHealthHeader"
+                        android:textColor="#ffff"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <TextView android:id="@+id/CharacterHealth"
+                        android:text="@string/placeholder"
+                        android:textColor="#ffff"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </TableRow>
+
+                <TableRow android:id="@+id/CharacterTraitRow"
+                    android:layout_marginBottom="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView android:id="@+id/CharacterTraitHeader"
+                        android:text="@string/CharacterTraitHeader"
+                        android:textColor="#ffff"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <TextView android:id="@+id/CharacterTrait"
+                        android:text="@string/placeholder"
+                        android:textColor="#ffff"
+                        android:ellipsize="none"
+                        android:maxLines="100"
+                        android:scrollHorizontally="false"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </TableRow>
+
+            </TableLayout>
+
+            <TextView
+                android:id="@+id/MoveHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ffff"
+                android:textAllCaps="true"
+                android:textSize="20sp"
+                android:text="@string/MovesHeader"
+                android:layout_marginRight="30dp"
+                android:layout_below="@id/CharacterBreakdownTable"/>
+
+            <TableLayout
+                android:id="@+id/MoveBreakdownTable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/MoveHeader"
+                android:stretchColumns="*">
+
+            </TableLayout>
+
+            <TextView
+                android:id="@+id/ComboHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ffff"
+                android:textAllCaps="true"
+                android:textSize="20sp"
+                android:text="@string/CombosHeader"
+                android:layout_marginRight="30dp"
+                android:layout_below="@id/MoveBreakdownTable"/>
+
+            <TableLayout
+                android:id="@+id/ComboBreakdownTable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ComboHeader"
+                android:stretchColumns="*">
+
+            </TableLayout>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</RelativeLayout>
