@@ -46,21 +46,25 @@ public class CharacterObject {
         int count = 0;
 
         // Get Character moves
-        String moves = adapter.getCharacterMoves(id);
-        for (String move : moves.split("\n")) {
-            moveList[count] = new Move();
-            moveList[count].load(move);
-            count++;
+        if (moveCount > 0) {
+            String moves = adapter.getCharacterMoves(id);
+            for (String move : moves.split("\n")) {
+                moveList[count] = new Move();
+                moveList[count].load(move);
+                count++;
+            }
         }
 
 
         count = 0;
         // Get Character Combos
-        String combos = adapter.getCharacterCombos(id);
-        for (String combo : combos.split("\n")) {
-            comboList[count] = new Combo();
-            comboList[count].load(combo);
-            count++;
+        if (comboCount > 0) {
+            String combos = adapter.getCharacterCombos(id);
+            for (String combo : combos.split("\n")) {
+                comboList[count] = new Combo();
+                comboList[count].load(combo);
+                count++;
+            }
         }
 
         // Close DB
@@ -87,8 +91,8 @@ public class CharacterObject {
 
     public static class Move {
         public String name;
-        public int move_type;
-        public int damage;
+        public String move_type;
+        public String damage;
         public String active_frames;
         public String startup_frames;
         public String recovery_frames;
@@ -97,8 +101,8 @@ public class CharacterObject {
 
         public Move() {
             name = "";
-            move_type = -1;
-            damage = -1;
+            move_type = "";
+            damage = "";
             active_frames = "";
             startup_frames = "";
             recovery_frames = "";
@@ -106,7 +110,7 @@ public class CharacterObject {
             block_type = "";
         }
 
-        public Move(String _name, int _mt, int dmg, String _actf, String _strf, String _recf, String _advf, String _blkt) {
+        public Move(String _name, String _mt, String dmg, String _actf, String _strf, String _recf, String _advf, String _blkt) {
             name = _name;
             move_type = _mt;
             damage = dmg;
@@ -119,8 +123,8 @@ public class CharacterObject {
 
         public void load(String move) {
             name = move.split(":")[0];
-            move_type = Integer.parseInt(move.split(":")[1]);
-            damage = Integer.parseInt(move.split(":")[2]);
+            move_type = move.split(":")[1];
+            damage = move.split(":")[2];
             startup_frames = move.split(":")[3];
             active_frames = move.split(":")[4];
             recovery_frames = move.split(":")[5];
