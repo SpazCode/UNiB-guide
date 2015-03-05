@@ -28,30 +28,42 @@ public class MainMenu extends ActionBarActivity {
     // Log Constants
     private static final String TAG = "APP-DEBUG";
     // Json Constants
-    private static final String FILENAME = "guide.json";
-    private static final String FILEURL = "http://stuartsullivan.com/guide.json";
+    private static final String[] FILENAMES = { "properties", "Hyde", "Linne", "Waldstein",
+                                                "Carmine", "Orie", "Gordeau", "Merkava",
+                                                "Vatista", "Seth", "Yuzuriha", "Hilda", "Eltnum",
+                                                "Chaos", "Akatsuki", "Nanase", "Byakuya" };
+    private static final String FILEBASEURL = "http://stuartsullivan.com//uniel/";
+    // private static final String FILENAME = "guide.json";
+    // private static final String FILEURL = "http://stuartsullivan.com/guide.json";
     // JSON KEYS
-    private static final String CHARACTERS = "Characters";
-    private static final String CHARANAME = "Name";
-    private static final String CHARAIMAGE = "Portrait";
-    private static final String CHARAHEALTH = "Health";
-    private static final String CHARATRAITS = "Traits";
-    private static final String MOVES = "Moves";
-    private static final String MOVENAME = "Name";
-    private static final String MOVETYPE = "Type";
-    private static final String MOVEDMG = "Damage";
-    private static final String MOVESUP = "Startup";
-    private static final String MOVEACT = "Active";
-    private static final String MOVEREC = "Recovery";
-    private static final String MOVEADV = "Advantage";
-    private static final String MOVEBLK = "Block";
-    private static final String COMBOS = "Combos";
-    private static final String COMBOTYPE = "Type";
-    private static final String COMBOSEQ = "Sequence";
-    private static final String MOVETYPES= "Move Type";
-    private static final String COMBOTYPES = "Combo Type";
+    private static final String CHARACTERS = "characters";
+    private static final String CHARANAME = "name";
+    private static final String CHARAIMAGE = "portrait";
+    private static final String CHARAHEALTH = "health";
+    private static final String CHARATRAITS = "trait";
+    private static final String MOVES = "moves";
+    private static final String MOVEDATA = "data";
+    private static final String MOVENAME = "name";
+    private static final String MOVETYPE = "type";
+    private static final String MOVEDMG = "damage";
+    private static final String MOVESUP = "startup";
+    private static final String MOVEACT = "active";
+    private static final String MOVEREC = "recovery";
+    private static final String MOVEADV = "frameAdv";
+    private static final String MOVEBLK = "guard";
+    private static final String MOVECAN = "cancel";
+    private static final String MOVEDES = "description";
+    private static final String MOVEVER = "version";
+    private static final String COMBOS = "combos";
+    private static final String COMBOTYPE = "type";
+    private static final String COMBOSEQ = "sequence";
+    private static final String BLOCKTYPES = "blocks";
+    private static final String CANCELTYPES = "cancels";
+    private static final String MOVETYPES= "movetype";
+    private static final String COMBOTYPES = "combotype";
     private static final String TYPEID = "id";
-    private static final String TYPENAME = "Name";
+    private static final String TYPENAME = "name";
+    private static final String TYPEVALUE = "value";
     // DATABASE VARIABLES
     private static final String DATABASE_NAME = "UNiBGuide";
     // Progress dialog to keep us updated
@@ -193,176 +205,243 @@ public class MainMenu extends ActionBarActivity {
             String trait = "";
             String moveName = "";
             String moveType = "";
-            int moveDmg = -1;
-            int moveSup = -1;
-            int moveAct = -1;
-            int moveRec = -1;
-            int moveAdv = -1;
+            String moveInput = "";
+            String moveDmg = "";
+            String moveSup = "";
+            String moveAct = "";
+            String moveRec = "";
+            String moveAdv = "";
+            String moveCan = "";
             String moveBlk = "";
+            String moveVer = "";
+            String moveDes = "";
             String comboType = "";
             String comboSeq = "";
-            int moveTypeId = -1;
-            String moveTypeName = "";
-            int comboTypeId = -1;
-            String comboTypeName = "";
+            int typeId = -1;
+            String typeName = "";
+            String typeValue = "";
 
-
-
-            try {
+            // Download all the different JSON files
+            for (String chara:FILENAMES) {
+                try {
                 // Download the JSON
-                URL url = new URL(FILEURL);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.connect();
+                    URL url = new URL(FILEBASEURL + chara + ".json");
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.connect();
 
-                // If there is an issue with grabbing the file
-                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    Log.i(TAG, "Connect Failure - " + conn.getResponseCode());
-                    return null;
-                } else {
-                    Log.i(TAG, "Connect Successful - " + conn.getResponseCode());
-                }
-
-                // this will be useful to display download percentage
-                // might be -1: server did not report the length
-                int fileLength = conn.getContentLength();
-
-                // Gets the input stream
-                input = conn.getInputStream();
-                output = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-
-                byte data[] = new byte[4096];
-                long total = 0;
-                int count;
-                while ((count = input.read(data)) != -1) {
-                    // allow this to be canceled
-                    if (isCancelled()) {
-                        input.close();
+                    // If there is an issue with grabbing the file
+                    if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                        Log.i(TAG, "Connect Failure - " + conn.getResponseCode());
                         return null;
+                    } else {
+                        Log.i(TAG, "Connect Successful - " + conn.getResponseCode());
                     }
-                    total += count;
-                    // Publish the progress...
-                    if (fileLength > 0)
-                        publishProgress("Downloading Data - " + total  + "\\" + fileLength);
-                    output.write(data, 0, count);
-                }
 
-                dialog.setMessage("Updating Guide Data");
+                    // this will be useful to display download percentage
+                    // might be -1: server did not report the length
+                    int fileLength = conn.getContentLength();
 
-            } catch (Exception e) {
-                // output to log
-                Log.i(TAG, "Download Failed due to, " + e.getMessage());
-                // return a null object
-            } finally {
-                try {
-                    if (output != null)
-                        output.close();
-                    if (input != null)
-                        input.close();
+                    // Gets the input stream
+                    input = conn.getInputStream();
+                    output = openFileOutput(chara + ".json", Context.MODE_PRIVATE);
+
+                    byte data[] = new byte[4096];
+                    long total = 0;
+                    int count;
+                    while ((count = input.read(data)) != -1) {
+                        // allow this to be canceled
+                        if (isCancelled()) {
+                            input.close();
+                            return null;
+                        }
+                        total += count;
+                        // Publish the progress...
+                        if (fileLength > 0)
+                            publishProgress("Saving File" + chara + ".json : " + total + "\\" + fileLength);
+                        output.write(data, 0, count);
+                    }
                 } catch (Exception e) {
-                    Log.i(TAG, "Error - " + e.getMessage());
-                }
-
-                if (connection != null)
-                    connection.disconnect();
-            }
-
-            // Load in the file
-            try {
-                fis = openFileInput(FILENAME);
-                byte[] dataArray = new byte[fis.available()];
-                while (fis.read(dataArray) != -1) {
-                    collected = new String(dataArray);
-                    publishProgress("Updating...");
-                }
-            } catch (Exception e) {
-                Log.i(TAG, "Parse Error - " + e.getMessage());
-            } finally {
-                // Close the file loaders at the end
-                if (fis != null)
-                    try {
-                        fis.close();
-                    } catch (IOException e) {
-                        Log.i(TAG, "Close - " + e.getMessage());
-                    }
-            }
-            Log.i(TAG, collected);
-
-            // If the JSON is present
-            if (collected != null) {
-                // Load the JSON into an object
-                JSONObject json;
-                try {
-                    json = new JSONObject(collected);
-                    int i = 0;
-                    int x = 0;
-                    context.deleteDatabase(DATABASE_NAME);
-                    adapter.open();
-                    for(i = 0; i < json.getJSONArray(MOVETYPES).length(); i++) {
-                        // Copy values
-                        moveTypeId = json.getJSONArray(MOVETYPES).getJSONObject(i).getInt(TYPEID);
-                        moveTypeName = json.getJSONArray(MOVETYPES).getJSONObject(i).getString(TYPENAME);
-                        // insert into entry
-                        adapter.createMoveTypeEntry(moveTypeId, moveTypeName);
-                        // DEBUG
-                        Log.i(TAG, "Insert - " + moveTypeName);
-                    }
-                    for(i = 0; i < json.getJSONArray(COMBOTYPES).length(); i++) {
-                        // Copy values
-                        comboTypeId = json.getJSONArray(COMBOTYPES).getJSONObject(i).getInt(TYPEID);
-                        comboTypeName = json.getJSONArray(COMBOTYPES).getJSONObject(i).getString(TYPENAME);
-                        // insert into entry
-                        adapter.createComboTypeEntry(comboTypeId, comboTypeName);
-                        // DEBUG
-                        Log.i(TAG, "Insert - " + moveTypeName);
-                    }
-                    for(i = 0; i < json.getJSONArray(CHARACTERS).length(); i++) {
-                        // Copy all the values
-                        charaName = json.getJSONArray(CHARACTERS).getJSONObject(i).getString(CHARANAME);
-                        charaImage = json.getJSONArray(CHARACTERS).getJSONObject(i).getString(CHARAIMAGE);
-                        health = json.getJSONArray(CHARACTERS).getJSONObject(i).getInt(CHARAHEALTH);
-                        trait = json.getJSONArray(CHARACTERS).getJSONObject(i).getString(CHARATRAITS);
-                        // Insert the entry
-                        adapter.createCharacterEntry(charaName, charaImage, health, trait);
-                        // DEBUG
-                        Log.i(TAG, "Insert - " + charaName);
-                        // Get the character id
-                        charaId = adapter.getCharacterId(charaName);
-                        for(x = 0; x < json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(MOVES).length(); x++) {
-                            // Copy all the move data
-                            moveName = json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(MOVES).getJSONObject(x).getString(MOVENAME);
-                            moveType = json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(MOVES).getJSONObject(x).getString(MOVETYPE);
-                            moveDmg = json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(MOVES).getJSONObject(x).getInt(MOVEDMG);
-                            moveSup = json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(MOVES).getJSONObject(x).getInt(MOVESUP);
-                            moveAct = json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(MOVES).getJSONObject(x).getInt(MOVEACT);
-                            moveRec = json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(MOVES).getJSONObject(x).getInt(MOVEREC);
-                            moveAdv = json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(MOVES).getJSONObject(x).getInt(MOVEADV);
-                            moveBlk = json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(MOVES).getJSONObject(x).getString(MOVEBLK);
-                            // Insert the entry
-                            adapter.createMoveEntry(moveName, charaId, moveType, moveDmg, ""+moveSup, ""+moveAct, ""+moveRec, ""+moveAdv, moveBlk);
-                        }
-                        for(x = 0; x < json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(COMBOS).length(); x++) {
-                            // Copy all the move data
-                            comboType = json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(COMBOS).getJSONObject(x).getString(COMBOTYPE);
-                            comboSeq = json.getJSONArray(CHARACTERS).getJSONObject(i).getJSONArray(COMBOS).getJSONObject(x).getString(COMBOSEQ);
-                            // Insert the entry
-                            adapter.createComboEntry(charaId, comboType, comboSeq);
-                        }
-                    }
-                } catch (JSONException e) {
-                    Log.i(TAG, "JSON Parser Error - " + e.getMessage());
+                    // output to log
+                    Log.i(TAG, "Download Failed due to, " + e.getMessage());
+                    // return a null object
                 } finally {
-                    adapter.close();
-                }
+                    try {
+                        if (output != null)
+                            output.close();
+                        if (input != null)
+                            input.close();
+                    } catch (Exception e) {
+                        Log.i(TAG, "Error - " + e.getMessage());
+                    }
 
-                return null;
-            } else {
-                return null;
+                    if (connection != null)
+                        connection.disconnect();
+                }
             }
+
+            // dialog.setMessage("Updating Guide Data");
+            // initalize the adapters
+            context.deleteDatabase(DATABASE_NAME);
+            // Loop through each file
+            for (String chara:FILENAMES) {
+                // open the DB adapter
+                adapter.open();
+                // Load in the file for each character
+                try {
+                    fis = openFileInput(chara + ".json");
+                    byte[] dataArray = new byte[fis.available()];
+                    collected = "";
+                    while (fis.read(dataArray) != -1) {
+                        collected += new String(dataArray);
+                        publishProgress("Updating...");
+                    }
+                } catch (Exception e) {
+                    Log.i(TAG, "Parse Error - " + e.getMessage());
+                } finally {
+                    // Close the file loaders at the end
+                    if (fis != null)
+                        try {
+                            fis.close();
+                        } catch (IOException e) {
+                            Log.i(TAG, "Close - " + e.getMessage());
+                        }
+                }
+                Log.i(TAG, "" + collected.length());
+
+                // If the JSON is present
+                if (collected != null) {
+                    // Load the JSON into an object
+                    JSONObject json;
+                    collected.replace("null", "");
+                    try {
+                        json = new JSONObject(collected.trim());
+
+                        int i = 0;
+                        int x = 0;
+                        int n = 0;
+
+                        // try to get move type data for the JSON
+                        if(json.has(MOVETYPES)) {
+                            // DEBUG
+                            Log.i(TAG, "Insert Move Types");
+                            for (i = 0; i < json.getJSONArray(MOVETYPES).length(); i++) {
+                                // Copy values
+                                typeId = json.getJSONArray(MOVETYPES).getJSONObject(i).getInt(TYPEID);
+                                typeName = json.getJSONArray(MOVETYPES).getJSONObject(i).getString(TYPENAME);
+                                // insert into entry
+                                adapter.createMoveTypeEntry(typeId, typeName);
+                                // DEBUG
+                                Log.i(TAG, "Insert - " + typeName);
+                            }
+                        }
+
+                        // try to get block type data from JSON
+                        if(json.has(BLOCKTYPES)) {
+                            // DEBUG
+                            Log.i(TAG, "Insert Block Types");
+                            for (i = 0; i < json.getJSONArray(BLOCKTYPES).length(); i++) {
+                                // Copy values
+                                typeId = json.getJSONArray(BLOCKTYPES).getJSONObject(i).getInt(TYPEID);
+                                typeName = json.getJSONArray(BLOCKTYPES).getJSONObject(i).getString(TYPENAME);
+                                typeValue = json.getJSONArray(BLOCKTYPES).getJSONObject(i).getString(TYPEVALUE);
+                                // insert into entry
+                                adapter.createBlockTypeEntry(typeId, typeName, typeValue);
+                                // DEBUG
+                                Log.i(TAG, "Insert - " + typeName);
+                            }
+                        }
+
+                        // Try to get cancel type data from JSON
+                        if(json.has(CANCELTYPES)) {
+                            // DEBUG
+                            Log.i(TAG, "Insert Cancel Types");
+                            for (i = 0; i < json.getJSONArray(CANCELTYPES).length(); i++) {
+                                // Copy values
+                                typeId = json.getJSONArray(CANCELTYPES).getJSONObject(i).getInt(TYPEID);
+                                typeName = json.getJSONArray(CANCELTYPES).getJSONObject(i).getString(TYPENAME);
+                                typeValue = json.getJSONArray(CANCELTYPES).getJSONObject(i).getString(TYPEVALUE);
+                                // insert into entry
+                                adapter.createCancelTypeEntry(typeId, typeName, typeValue);
+                                // DEBUG
+                                Log.i(TAG, "Insert - " + typeName);
+                            }
+                        }
+                        // Try to get combo type data from the JSON
+                        if (json.has(COMBOTYPES)) {
+                            // DEBUG
+                            Log.i(TAG, "Insert Combo Types");
+                            for (i = 0; i < json.getJSONArray(COMBOTYPES).length(); i++) {
+                                // Copy values
+                                typeId = json.getJSONArray(COMBOTYPES).getJSONObject(i).getInt(TYPEID);
+                                typeName = json.getJSONArray(COMBOTYPES).getJSONObject(i).getString(TYPENAME);
+                                // insert into entry
+                                adapter.createComboTypeEntry(typeId, typeName);
+                                // DEBUG
+                                Log.i(TAG, "Insert - " + typeName);
+                            }
+                        }
+                        // try to get character data from the JSON
+                        if (json.has(CHARANAME)) {
+                            // Copy all the values
+                            charaName = json.getString(CHARANAME);
+                            charaImage = null; // json.getString(CHARAIMAGE);
+                            health = Integer.parseInt(json.getString(CHARAHEALTH).replace(",", ""));
+                            trait = json.getString(CHARATRAITS);
+                            // Insert the entry
+                            adapter.createCharacterEntry(charaName, charaImage, health, trait);
+                            // DEBUG
+                            Log.i(TAG, "Insert - " + charaName);
+                            // Get the character id
+                            charaId = adapter.getCharacterId(charaName);
+                            if (json.has(MOVES)) {
+                                for (x = 0; x < json.getJSONArray(MOVES).length(); x++) {
+                                    // Copy all the move data
+                                    moveName = json.getJSONArray(MOVES).getJSONObject(x).getString(MOVENAME);
+                                    moveType = json.getJSONArray(MOVES).getJSONObject(x).getString(MOVETYPE);
+                                    // Insert the entry
+                                    adapter.createMoveEntry(moveName, charaId, adapter.getMoveType(moveType), moveInput);
+                                    for (n = 0; n < json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).length(); n++) {
+                                        moveDmg = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVEDMG);
+                                        moveSup = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVESUP);
+                                        moveAct = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVEACT);
+                                        moveRec = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVEREC);
+                                        moveAdv = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVEADV);
+                                        moveBlk = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVEBLK);
+                                        moveVer = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVEVER);
+                                        moveCan = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVECAN);
+                                        moveDes = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVEDES);
+
+                                        adapter.createMoveDataEntry(x + 1, moveVer, moveDmg, moveSup, moveAct, moveRec, moveAdv, moveCan, moveDes, moveBlk);
+                                    }
+                                }
+                            }
+
+                            if (json.has(COMBOS)) {
+                                for (x = 0; x < json.getJSONArray(COMBOS).length(); x++) {
+                                    // Copy all the move data
+                                    comboType = json.getJSONArray(COMBOS).getJSONObject(x).getString(COMBOTYPE);
+                                    comboSeq = json.getJSONArray(COMBOS).getJSONObject(x).getString(COMBOSEQ);
+                                    // Insert the entry
+                                    adapter.createComboEntry(charaId, comboType, comboSeq);
+                                }
+                            }
+                        }
+
+                    } catch (JSONException e) {
+                        Log.i(TAG, "JSON Parser Error - " + e.getMessage());
+                    } finally {
+                        adapter.close();
+                    }
+                } else {
+                    return null;
+                }
+            }
+            return null;
         }
 
         @Override
         // When the progress is updated
-        protected void onProgressUpdate(String...progress){
+        protected void onProgressUpdate(String... progress){
             Log.i(TAG, "InitializeDatabase - onProgressUpdate");
             dialog.setMessage(progress[0]);
         }
