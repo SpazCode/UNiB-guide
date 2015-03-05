@@ -106,8 +106,9 @@ public class DatabaseAdapter {
         return ourDB.insert(DATABASE_MOVE_TABLE, null, cv);
     }
 
-    public long createMoveDataEntry(String version, String damage, String startup, String active, String recovery, String frameAdv, String cancels, String desc, String blocktype) {
+    public long createMoveDataEntry(int move_id, String version, String damage, String startup, String active, String recovery, String frameAdv, String cancels, String desc, String blocktype) {
         ContentValues cv = new ContentValues();
+        cv.put(KEY_MOVEDATA_MOVEID, move_id);
         cv.put(KEY_MOVEDATA_VERSION, version);
         cv.put(KEY_MOVEDATA_DAMAGE, damage);
         cv.put(KEY_MOVEDATA_STARTUP, startup);
@@ -140,6 +141,39 @@ public class DatabaseAdapter {
         cv.put(KEY_COMBOTYPE_ROWID, id);
         cv.put(KEY_COMBOTYPE_TYPENAME, name);
         return ourDB.insert(DATABASE_COMBOTYPE_TABLE, null, cv);
+    }
+
+    public long createBlockTypeEntry(int id, String name, String value) {
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_BLOCKS_ROWID, id);
+        cv.put(KEY_BLOCKS_NAME, name);
+        cv.put(KEY_BLOCKS_VALUE, value);
+        return ourDB.insert(DATABASE_BLOCKS_TABLE, null, cv);
+    }
+
+    public long createCancelTypeEntry(int id, String name, String value) {
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_CANCELS_ROWID, id);
+        cv.put(KEY_CANCELS_NAME, name);
+        cv.put(KEY_CANCELS_VALUE, value);
+        return ourDB.insert(DATABASE_CANCELS_TABLE, null, cv);
+    }
+
+    public int getMoveType(String moveType) {
+        // The entities id
+        int _id = -1;
+        // Query the type id
+        Cursor cur = ourDB.rawQuery("SELECT " + KEY_MOVETYPE_ROWID + " " +
+                "FROM " + DATABASE_MOVETYPE_TABLE + " " +
+                "WHERE " + KEY_MOVETYPE_TYPENAME + " = '" + moveType + "'", null);
+
+        // if there is  id returned
+        if (cur.getCount() > 0) {
+            if (cur.moveToFirst())
+                _id = cur.getInt(0);
+        }
+        Log.i(TAG, "Move Type: " +_id + " - Name: " + moveType);
+        return _id;
     }
 
     public int getCharacterId(String name) {
@@ -216,8 +250,8 @@ public class DatabaseAdapter {
                 "md." + KEY_MOVEDATA_BLOCKTYPE + ", " +
                 "md." + KEY_MOVEDATA_CANCELS + " " +
                 "FROM " + DATABASE_MOVE_TABLE + " m, " + DATABASE_MOVETYPE_TABLE + " mt, " + DATABASE_MOVEDATA_TABLE + " md " +
-                "WHERE m." + KEY_MOVE_CHARACTERID + " = " + id +
-                "AND md." + KEY_MOVEDATA_ROWID + " = m." + KEY_MOVE_ROWID +
+                "WHERE m." + KEY_MOVE_CHARACTERID + " = " + id + " " +
+                "AND md." + KEY_MOVEDATA_ROWID + " = m." + KEY_MOVE_ROWID + " " +
                 "AND m." + KEY_MOVE_MOVETYPEID + " = mt." + KEY_MOVETYPE_ROWID;
         // Set up the cursor
         Cursor cur = ourDB.rawQuery(query, null);
@@ -328,6 +362,7 @@ public class DatabaseAdapter {
                 KEY_MOVEDATA_RECOVERY + " TEXT, " +
                 KEY_MOVEDATA_ADVANTAGE + " TEXT, " +
                 KEY_MOVEDATA_BLOCKTYPE + " TEXT, " +
+                KEY_MOVEDATA_CANCELS + " TEXT, " +
                 KEY_MOVEDATA_DESCRIPTION + " TEXT, " +
                 "FOREIGN KEY (" + KEY_MOVEDATA_MOVEID + ") REFERENCES " + DATABASE_MOVE_TABLE + "( " + KEY_MOVE_ROWID + "))";
         private static final String CREATE_MOVETYPE_TABLE = "CREATE TABLE " + DATABASE_MOVETYPE_TABLE + " (" +
