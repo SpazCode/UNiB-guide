@@ -15,19 +15,27 @@ import android.widget.ImageView;
 public class ImageAdapter extends BaseAdapter {
     // DEBUG TAGS
     private static final String TAG = "APP-DEBUG";
+    // Variables
     private Context context;
+    private DatabaseAdapter adapter;
+    private static String[] characters = {"Hyde", "Linne", "Waldstein", "Carmine",
+            "Orie", "Gordeau", "Merkava", "Vatista", "Seth", "Yuzuriha", "Hilda",
+            "Eltnum", "Chaos","Akatsuki", "Nanase", "Byakuya"};
 
     // Keep the images in the array
     public Integer[] thumbIds = {
-            R.drawable.red, R.drawable.yln, R.drawable.org,
-            R.drawable.blu, R.drawable.grn, R.drawable.dgn,
-            R.drawable.brn, R.drawable.bln, R.drawable.lav,
-            R.drawable.pnk, R.drawable.lbl, R.drawable.gry
+            R.drawable.ch_hyde_icon,  R.drawable.ch_linne_icon, R.drawable.ch_wald_icon,
+            R.drawable.ch_car_icon, R.drawable.ch_orie_icon, R.drawable.ch_gord_icon,
+            R.drawable.ch_mer_icon, R.drawable.ch_vat_icon, R.drawable.ch_seth_icon,
+            R.drawable.ch_yuzu_icon, R.drawable.ch_hilda_icon, R.drawable.ch_elt_icon,
+            R.drawable.ch_cha_icon, R.drawable.ch_aka_icon, R.drawable.ch_nan_icon,
+            R.drawable.ch_bya_icon
     };
 
     // Constructor
     public ImageAdapter(Context c) {
         context = c;
+        adapter = new DatabaseAdapter(context);
     }
 
     @Override
@@ -50,14 +58,16 @@ public class ImageAdapter extends BaseAdapter {
         ImageView imageView = new ImageView(context);
         imageView.setImageResource(thumbIds[position]);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        imageView.setLayoutParams(new GridView.LayoutParams(70, 70));
+        imageView.setLayoutParams(new GridView.LayoutParams(160, 160));
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                adapter.open();
                 Log.i(TAG, "Loading Character with: " + position + 1);
                 Intent i = new Intent(context, CharacterView.class);
-                i.putExtra("id", position+1);
+                i.putExtra("id", adapter.getCharacterId(characters[position]));
                 context.startActivity(i);
+                adapter.close();
             }
         });
         return imageView;
