@@ -46,6 +46,9 @@
                     <TextView android:id="@+id/CharacterHealth"
                         android:text="@string/placeholder"
                         android:textColor="#ffff"
+                        android:ellipsize="none"
+                        android:maxLines="100"
+                        android:scrollHorizontally="false"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
                 </TableRow>
@@ -64,7 +67,7 @@
                         android:text="@string/placeholder"
                         android:textColor="#ffff"
                         android:ellipsize="none"
-                        android:maxLines="100"
+                        android:maxLines="25"
                         android:scrollHorizontally="false"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
