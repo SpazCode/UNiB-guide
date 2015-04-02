@@ -7,6 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Date;
+
 /**
  * Created by Stuart on 2014-12-26.
  */
@@ -56,6 +61,8 @@ public class DatabaseAdapter {
     // Combo Type Keys
     public static final String KEY_COMBOTYPE_ROWID = "_id";
     public static final String KEY_COMBOTYPE_TYPENAME = "name";
+    // Update Keys
+    public static final String KEY_UPDATE_DATE = "updated_at";
 
     // Database constants
     private static final String DATABASE_NAME = "UNiBGuide";
@@ -67,6 +74,7 @@ public class DatabaseAdapter {
     private static final String DATABASE_MOVETYPE_TABLE = "move_types";
     private static final String DATABASE_COMBO_TABLE = "combos";
     private static final String DATABASE_COMBOTYPE_TABLE = "combo_types";
+    private static final String DATABASE_UPDATES_TABLE = "updates";
     private static final int DATABASE_VERSION = 1;
 
     private DBHelper ourHelper;
@@ -75,6 +83,8 @@ public class DatabaseAdapter {
 
     public DatabaseAdapter(Context c) {
         ourContext = c;
+        ourHelper = new DBHelper(ourContext);
+        ourHelper.getReadableDatabase();
     }
 
     public DatabaseAdapter open() {
@@ -83,9 +93,15 @@ public class DatabaseAdapter {
         return this;
     }
 
-    public void close()
-    {
+    public void close() {
         ourHelper.close();
+        ourDB.close();
+    }
+
+    public long updateDateUpdated() {
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_UPDATE_DATE, new Date().toString());
+        return ourDB.insert(DATABASE_UPDATES_TABLE, null, cv);
     }
 
     public long createCharacterEntry(String name, String image, int health, String traits) {
@@ -159,6 +175,19 @@ public class DatabaseAdapter {
         return ourDB.insert(DATABASE_CANCELS_TABLE, null, cv);
     }
 
+    public boolean checkUpdated() {
+        // If the system has been updated
+        boolean _updated = false;
+        // The Query
+        Cursor cur = ourDB.rawQuery("SELECT * FROM " + DATABASE_UPDATES_TABLE, null);
+        // Check if the cursor has any values
+        if(cur.getCount() > 0)
+            _updated = true;
+
+        // Return the output
+        return _updated;
+    }
+
     public int getMoveType(String moveType) {
         // The entities id
         int _id = -1;
@@ -191,6 +220,23 @@ public class DatabaseAdapter {
         }
         Log.i(TAG, "Character: " + _id + " - Name: " + name);
         return _id;
+    }
+
+    public String getCharacterName(int id) {
+        // The Character name
+        String name = "";
+        // Query to get the character name
+        Cursor cur = ourDB.rawQuery("SELECT " + KEY_CHARACTER_NAME + " " +
+                "FROM " + DATABASE_CHARACTER_TABLE + " " +
+                "WHERE " + KEY_CHARACTER_ROWID + " = '" + id + "'", null);
+
+        // if you get on back return it
+        if(cur.getCount() > 0) {
+            if(cur.moveToFirst())
+                name = cur.getString(0);
+        }
+        Log.i(TAG, "Character: " + id + " - Name: " + name);
+        return name;
     }
 
     public String getCharacterInfo(int id) {
@@ -235,48 +281,94 @@ public class DatabaseAdapter {
         return count;
     }
 
-    public String getCharacterMoves(int id) {
+    public JSONArray getCharacterMoves(int id) {
         // return string
         String result = "";
 
         // The query
-        String query = "SELECT m." + KEY_MOVE_NAME + ", " +
+        String move_query = "SELECT m." + KEY_MOVE_ROWID + ", " +
+                "m." + KEY_MOVE_NAME + ", " +
                 "mt." + KEY_MOVETYPE_TYPENAME + ", " +
-                "md." + KEY_MOVEDATA_DAMAGE + ", " +
-                "md." + KEY_MOVEDATA_STARTUP + ", " +
-                "md." + KEY_MOVEDATA_ACTIVE + ", " +
-                "md." + KEY_MOVEDATA_RECOVERY + ", " +
-                "md." + KEY_MOVEDATA_ADVANTAGE + ", " +
-                "md." + KEY_MOVEDATA_BLOCKTYPE + ", " +
-                "md." + KEY_MOVEDATA_CANCELS + " " +
-                "FROM " + DATABASE_MOVE_TABLE + " m, " + DATABASE_MOVETYPE_TABLE + " mt, " + DATABASE_MOVEDATA_TABLE + " md " +
+                "m." + KEY_MOVE_INPUT + ", " +
+                "FROM " + DATABASE_MOVE_TABLE + " m, " + DATABASE_MOVETYPE_TABLE + " mt, " +
                 "WHERE m." + KEY_MOVE_CHARACTERID + " = " + id + " " +
-                "AND md." + KEY_MOVEDATA_ROWID + " = m." + KEY_MOVE_ROWID + " " +
                 "AND m." + KEY_MOVE_MOVETYPEID + " = mt." + KEY_MOVETYPE_ROWID;
+
         // Set up the cursor
-        Cursor cur = ourDB.rawQuery(query, null);
+        Cursor cur = ourDB.rawQuery(move_query, null);
+
+        // The resultant json array
+        JSONArray array = new JSONArray();
 
         // get the data
         if (cur.getCount() > 0) {
             cur.moveToFirst();
-            while(cur.isAfterLast() == false) {
-                // build the result string
-                result += cur.getString(0) + ":" +
-                          cur.getString(1) + ":" +
-                          cur.getString(2) + ":" +
-                          cur.getString(3) + ":" +
-                          cur.getString(4) + ":" +
-                          cur.getString(5) + ":" +
-                          cur.getString(6) + ":" +
-                          cur.getString(7) + ":" +
-                          cur.getString(8) + "\n";
+            while(!cur.isAfterLast()) {
+                // Results for this one are in a JSON form
+                JSONObject json = new JSONObject();
+                // The move id for this item
+                String move_id = cur.getString(0);
+
+                try {
+                    // build the result json
+                    json.put("name", cur.getString(1).replace("<br>", "\n").replace("<br />", "\n"));
+                    json.put("move_type", cur.getString(2));
+                    json.put("input", cur.getString(3));
+
+                    // Array for move data
+                    JSONArray data = new JSONArray();
+
+                    // Get the data for all different versions of each move
+                    String query = "SELECT md." + KEY_MOVEDATA_VERSION + ", " +
+                            "md." + KEY_MOVEDATA_STARTUP + ", " +
+                            "md." + KEY_MOVEDATA_ACTIVE + ", " +
+                            "md." + KEY_MOVEDATA_RECOVERY + ", " +
+                            "md." + KEY_MOVEDATA_ADVANTAGE + ", " +
+                            "md." + KEY_MOVEDATA_BLOCKTYPE + ", " +
+                            "md." + KEY_MOVEDATA_CANCELS + " " +
+                            "md." + KEY_MOVEDATA_DESCRIPTION + " " +
+                            "md." + KEY_MOVEDATA_DAMAGE + " " +
+                            "FROM " + DATABASE_MOVEDATA_TABLE + " md " +
+                            "WHERE m." + KEY_MOVEDATA_MOVEID + " = " + move_id;
+                    // Run query
+                    Cursor move_cur = ourDB.rawQuery(query, null);
+
+                    if (move_cur.getCount() > 0) {
+                        move_cur.moveToFirst();
+                        while (!move_cur.isAfterLast()) {
+                            JSONObject move = new JSONObject();
+                            // build the inner json for the data
+                            move.put("version", move_cur.getString(0));
+                            move.put("startup", move_cur.getString(1));
+                            move.put("active", move_cur.getString(2));
+                            move.put("recovery", move_cur.getString(3));
+                            move.put("advantage", move_cur.getString(4));
+                            move.put("blocktype", move_cur.getString(5));
+                            move.put("cancels", move_cur.getString(6));
+                            move.put("description", move_cur.getString(7).replace("<br>", "\n").replace("<br />", "\n"));
+                            move.put("damage", move_cur.getString(8));
+
+                            // Adding the data to the array of data
+                            data.put(move_cur.getPosition(), move);
+
+                            // Move to the next row
+                            move_cur.moveToNext();
+                        }
+                    }
+
+                    json.put("data", data);
+                } catch (Exception ignored) {
+
+                }
+                // add to the array
+                array.put(json);
 
                 // move to next line
                 cur.moveToNext();
             }
         }
 
-        return result;
+        return array;
     }
 
     public int getCharacterComboCount(int id) {
@@ -315,7 +407,7 @@ public class DatabaseAdapter {
         // get the data
         if (cur.getCount() > 0) {
             cur.moveToFirst();
-            while(cur.isAfterLast() == false) {
+            while(!cur.isAfterLast()) {
                 // build the result string
                 result += cur.getString(0) + ":" +
                         cur.getString(1) + "\n";
@@ -378,6 +470,8 @@ public class DatabaseAdapter {
         private static final String CREATE_COMBOTYPE_TABLE = "CREATE TABLE " + DATABASE_COMBOTYPE_TABLE + " (" +
                 KEY_COMBOTYPE_ROWID + " INTEGER PRIMARY KEY, " +
                 KEY_COMBOTYPE_TYPENAME + " TEXT NOT NULL)";
+        private static final String CREATE_UPDATES_TABLE = "CREATE TABLE " + DATABASE_UPDATES_TABLE + "(" +
+                KEY_UPDATE_DATE + " DATE )";
 
         public DBHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -401,6 +495,8 @@ public class DatabaseAdapter {
             db.execSQL(CREATE_MOVEDATA_TABLE);
             Log.i(TAG, "Created: " +DATABASE_COMBO_TABLE);
             db.execSQL(CREATE_COMBO_TABLE);
+            Log.i(TAG, "Created: " +DATABASE_UPDATES_TABLE);
+            db.execSQL(CREATE_UPDATES_TABLE);
         }
 
         @Override
