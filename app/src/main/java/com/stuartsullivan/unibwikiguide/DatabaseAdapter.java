@@ -325,11 +325,11 @@ public class DatabaseAdapter {
                             "md." + KEY_MOVEDATA_RECOVERY + ", " +
                             "md." + KEY_MOVEDATA_ADVANTAGE + ", " +
                             "md." + KEY_MOVEDATA_BLOCKTYPE + ", " +
-                            "md." + KEY_MOVEDATA_CANCELS + " " +
-                            "md." + KEY_MOVEDATA_DESCRIPTION + " " +
+                            "md." + KEY_MOVEDATA_CANCELS + ", " +
+                            "md." + KEY_MOVEDATA_DESCRIPTION + ", " +
                             "md." + KEY_MOVEDATA_DAMAGE + " " +
                             "FROM " + DATABASE_MOVEDATA_TABLE + " md " +
-                            "WHERE m." + KEY_MOVEDATA_MOVEID + " = " + move_id;
+                            "WHERE md." + KEY_MOVEDATA_MOVEID + " = " + move_id;
                     // Run query
                     Cursor move_cur = ourDB.rawQuery(query, null);
 
