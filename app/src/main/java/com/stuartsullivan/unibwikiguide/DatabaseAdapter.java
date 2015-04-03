@@ -289,8 +289,8 @@ public class DatabaseAdapter {
         String move_query = "SELECT m." + KEY_MOVE_ROWID + ", " +
                 "m." + KEY_MOVE_NAME + ", " +
                 "mt." + KEY_MOVETYPE_TYPENAME + ", " +
-                "m." + KEY_MOVE_INPUT + ", " +
-                "FROM " + DATABASE_MOVE_TABLE + " m, " + DATABASE_MOVETYPE_TABLE + " mt, " +
+                "m." + KEY_MOVE_INPUT + " " +
+                "FROM " + DATABASE_MOVE_TABLE + " m, " + DATABASE_MOVETYPE_TABLE + " mt " +
                 "WHERE m." + KEY_MOVE_CHARACTERID + " = " + id + " " +
                 "AND m." + KEY_MOVE_MOVETYPEID + " = mt." + KEY_MOVETYPE_ROWID;
 
