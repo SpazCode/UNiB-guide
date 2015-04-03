@@ -12,7 +12,10 @@
         android:id="@+id/Logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/unibel_logo" />
+        android:src="@drawable/unibel_logo"
+        android:cropToPadding="false"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <GridLayout
         xmlns:android="http://schemas.android.com/apk/res/android"

@@ -45,6 +45,7 @@ public class MainMenu extends ActionBarActivity {
     private static final String MOVEDATA = "data";
     private static final String MOVENAME = "name";
     private static final String MOVETYPE = "type";
+    private static final String MOVEINPUT = "input";
     private static final String MOVEDMG = "damage";
     private static final String MOVESUP = "startup";
     private static final String MOVEACT = "active";
@@ -95,6 +96,13 @@ public class MainMenu extends ActionBarActivity {
         // Set up the adapters
         adapter = new DatabaseAdapter(this);
         adapter.open();
+        // If the database has not been set up yet run the async tasks to put it together
+        if(!adapter.checkUpdated()) {
+            InitializeDatabase iTask = new InitializeDatabase(this);
+            iTask.execute();
+        } else {
+            dialog.hide();
+        }
         adapter.close();
 
         // Set up the activity listeners
@@ -126,8 +134,7 @@ public class MainMenu extends ActionBarActivity {
     protected void onStart(){
         super.onStart();
         Log.i(TAG, "MainMenu - onStart");
-        InitializeDatabase iTask = new InitializeDatabase(this);
-        iTask.execute();
+
     }
 
 
@@ -149,10 +156,29 @@ public class MainMenu extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Log.i(TAG, "MainMenu - Settings");
+            return true;
+        }
+
+        if (id == R.id.action_update) {
+            // Set up the Menu button for updates
+            Log.i(TAG, "MainMenu - Sync");
+            runUpdate();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    // Function that will run the updates
+    private void runUpdate() {
+        // Set up the dialog
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setMessage("Updating Guide Data");
+        dialog.show();
+        // Run the async task
+        InitializeDatabase iTask = new InitializeDatabase(this);
+        iTask.execute();
     }
 
     public class InitializeDatabase extends AsyncTask<Void, String, Void>
@@ -257,7 +283,7 @@ public class MainMenu extends ActionBarActivity {
                         total += count;
                         // Publish the progress...
                         if (fileLength > 0)
-                            publishProgress("Saving File" + chara + ".json : " + total + "\\" + fileLength);
+                            publishProgress("Saving File - " + chara + ".json : " + total + "\\" + fileLength);
                         output.write(data, 0, count);
                     }
                 } catch (Exception e) {
@@ -398,6 +424,8 @@ public class MainMenu extends ActionBarActivity {
                                     // Copy all the move data
                                     moveName = json.getJSONArray(MOVES).getJSONObject(x).getString(MOVENAME);
                                     moveType = json.getJSONArray(MOVES).getJSONObject(x).getString(MOVETYPE);
+                                    moveInput = json.getJSONArray(MOVES).getJSONObject(x).getString(MOVEINPUT);
+                                    moveInput = moveInput != "null" ? moveInput : moveName;
                                     // Insert the entry
                                     adapter.createMoveEntry(moveName, charaId, adapter.getMoveType(moveType), moveInput);
                                     for (n = 0; n < json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).length(); n++) {
@@ -430,6 +458,7 @@ public class MainMenu extends ActionBarActivity {
                     } catch (JSONException e) {
                         Log.i(TAG, "JSON Parser Error - " + e.getMessage());
                     } finally {
+                        adapter.updateDateUpdated();
                         adapter.close();
                     }
                 } else {
