@@ -3,6 +3,9 @@ package com.stuartsullivan.unibwikiguide;
 import android.content.Context;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 /**
  * Created by Stuart on 2014-12-28.
  */
@@ -37,9 +40,10 @@ public class CharacterObject {
         trait = info.split(":")[2];
         adapter.close();
 
-
+        // initialize the objects
         setupLists();
 
+        // Reopen the database
         adapter.open();
 
         // Set up variables
@@ -47,14 +51,18 @@ public class CharacterObject {
 
         // Get Character moves
         if (moveCount > 0) {
-            String moves = adapter.getCharacterMoves(id);
-            for (String move : moves.split("\n")) {
-                moveList[count] = new Move();
-                moveList[count].load(move);
-                count++;
-            }
-        }
+            JSONArray moves = adapter.getCharacterMoves(id);
+            try {
+                int length = moves.length();
+                for (int i = 0; i < length; i++) {
+                    moveList[i] = new Move();
+                    moveList[i].load(moves.getJSONObject(i));
+                }
+            } catch (Exception ignore) {
 
+            }
+
+        }
 
         count = 0;
         // Get Character Combos
@@ -81,7 +89,7 @@ public class CharacterObject {
         moveCount = adapter.getCharacterMoveCount(id);
         comboCount = adapter.getCharacterComboCount(id);
 
-        // initalize the arraies
+        // initialize the arrays
         moveList = new Move[moveCount];
         comboList = new Combo[comboCount];
 
@@ -90,46 +98,88 @@ public class CharacterObject {
     }
 
     public static class Move {
+        // Parameters for moves
         public String name;
+        public String input;
         public String move_type;
+        public MoveData[] data;
+
+        // ** CONSTRUCTOR **
+        public Move() {
+            name = "";
+            input = "";
+            move_type = "";
+            data =  null;
+        }
+
+        // Load the move values and the data
+        public void load(JSONObject move) {
+            try {
+                name = move.getString("name");
+                input = move.getString("input");
+                move_type = move.getString("move_type");
+                int data_count = move.getJSONArray("data").length();
+                data = new MoveData[data_count];
+                for (int x = 0; x < data_count; x++) {
+                    data[x] = new MoveData();
+                    data[x].load(move.getJSONArray("data").getJSONObject(x));
+                }
+            } catch (Exception e) {
+                blank();
+            }
+        }
+
+        private void blank() {
+            name = "";
+            input = "";
+            move_type = "";
+        }
+    }
+
+    public static class MoveData{
+        public String version;
         public String damage;
         public String active_frames;
         public String startup_frames;
         public String recovery_frames;
         public String advantage_frames;
         public String block_type;
+        public String cancels;
+        public String desc;
 
-        public Move() {
-            name = "";
-            move_type = "";
+        // ** CONSTRUCTOR **
+        public MoveData() {
+            blank();
+        }
+
+        // Load the data from the json object
+        public void load(JSONObject data) {
+            try {
+                version = data.getString("version");
+                damage = data.getString("damage");
+                startup_frames = data.getString("startup");
+                active_frames = data.getString("active");
+                recovery_frames = data.getString("recovery");
+                advantage_frames = data.getString("advantage");
+                block_type = data.getString("blocktype");
+                cancels = data.getString("cancels");
+                desc = data.getString("description");
+            } catch (Exception e) {
+                blank();
+            }
+        }
+
+        // default all the values
+        private void blank() {
+            version = "";
             damage = "";
             active_frames = "";
             startup_frames = "";
             recovery_frames = "";
             advantage_frames = "";
             block_type = "";
-        }
-
-        public Move(String _name, String _mt, String dmg, String _actf, String _strf, String _recf, String _advf, String _blkt) {
-            name = _name;
-            move_type = _mt;
-            damage = dmg;
-            active_frames = _actf;
-            startup_frames = _strf;
-            recovery_frames = _recf;
-            advantage_frames = _advf;
-            block_type = _blkt;
-        }
-
-        public void load(String move) {
-            name = move.split(":")[0];
-            move_type = move.split(":")[1];
-            damage = move.split(":")[2];
-            startup_frames = move.split(":")[3];
-            active_frames = move.split(":")[4];
-            recovery_frames = move.split(":")[5];
-            advantage_frames = move.split(":")[6];
-            block_type = move.split(":")[7];
+            cancels = "";
+            desc = "";
         }
     }
 

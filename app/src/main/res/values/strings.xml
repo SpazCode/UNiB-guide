@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">UNiB Wiki Guide</string>
+    <string name="app_name">Under Guide</string>
     <string name="title_activity_character_select">CharacterSelect</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -18,5 +18,12 @@
     <string name="MovesHeader">Moves</string>
     <string name="CombosHeader">Combos</string>
     <string name="action_update">Update</string>
+    <string name="move_label_version">Version</string>
+    <string name="move_label_damage">DMG</string>
+    <string name="move_label_active_frames">Act.</string>
+    <string name="move_label_startup_frames">SU.</string>
+    <string name="move_label_recovery_frames">Rec.</string>
+    <string name="move_label_advantage_frames">Adv.</string>
+    <string name="move_label_block_type">Blocks</string>
 
 </resources>

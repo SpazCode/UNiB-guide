@@ -10,7 +10,8 @@
     <ScrollView
         android:id="@+id/TableScroller"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:fillViewport="true">
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -24,6 +25,7 @@
                 android:textAllCaps="true"
                 android:textSize="20sp"
                 android:text="@string/placeholder"
+                android:scrollHorizontally="false"
                 android:layout_marginRight="30dp"/>
 
             <TableLayout
@@ -86,34 +88,14 @@
                 android:layout_marginRight="30dp"
                 android:layout_below="@id/CharacterBreakdownTable"/>
 
-            <TableLayout
-                android:id="@+id/MoveBreakdownTable"
+            <ListView
+                android:id="@+id/move_breakdown_table"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:layout_below="@id/MoveHeader"
                 android:stretchColumns="*">
 
-            </TableLayout>
-
-            <TextView
-                android:id="@+id/ComboHeader"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#ffff"
-                android:textAllCaps="true"
-                android:textSize="20sp"
-                android:text="@string/CombosHeader"
-                android:layout_marginRight="30dp"
-                android:layout_below="@id/MoveBreakdownTable"/>
-
-            <TableLayout
-                android:id="@+id/ComboBreakdownTable"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/ComboHeader"
-                android:stretchColumns="*">
-
-            </TableLayout>
+            </ListView>
 
         </RelativeLayout>
 

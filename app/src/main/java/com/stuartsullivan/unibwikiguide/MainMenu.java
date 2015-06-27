@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -152,20 +153,23 @@ public class MainMenu extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         Log.i(TAG, "MainMenu - onOptionsItemSelected");
-        int id = item.getItemId();
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            case R.id.action_update:
+                // Set up the Menu button for updates
+                Log.i(TAG, "MainMenu - Sync");
+                runUpdate();
+                return true;
+        }
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        /*if (id == R.id.action_settings) {
             Log.i(TAG, "MainMenu - Settings");
             return true;
-        }
-
-        if (id == R.id.action_update) {
-            // Set up the Menu button for updates
-            Log.i(TAG, "MainMenu - Sync");
-            runUpdate();
-            return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }
@@ -427,7 +431,7 @@ public class MainMenu extends ActionBarActivity {
                                     moveInput = json.getJSONArray(MOVES).getJSONObject(x).getString(MOVEINPUT);
                                     moveInput = moveInput != "null" ? moveInput : moveName;
                                     // Insert the entry
-                                    adapter.createMoveEntry(moveName, charaId, adapter.getMoveType(moveType), moveInput);
+                                    long _id = adapter.createMoveEntry(moveName, charaId, adapter.getMoveType(moveType), moveInput);
                                     for (n = 0; n < json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).length(); n++) {
                                         moveDmg = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVEDMG);
                                         moveSup = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVESUP);
@@ -439,7 +443,7 @@ public class MainMenu extends ActionBarActivity {
                                         moveCan = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVECAN);
                                         moveDes = json.getJSONArray(MOVES).getJSONObject(x).getJSONArray(MOVEDATA).getJSONObject(n).getString(MOVEDES);
 
-                                        adapter.createMoveDataEntry(x + 1, moveVer, moveDmg, moveSup, moveAct, moveRec, moveAdv, moveCan, moveDes, moveBlk);
+                                        adapter.createMoveDataEntry((int) _id, moveVer, moveDmg, moveSup, moveAct, moveRec, moveAdv, moveCan, moveDes, moveBlk);
                                     }
                                 }
                             }

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="*"
+        android:layout_gravity="center_horizontal"
+        android:showDividers="middle">
+
+        <TableRow android:layout_gravity="center">
+            <TextView android:id="@+id/move_name"
+                android:layout_span="4"
+                android:scrollHorizontally="false"
+                android:textColor="#fff"/>
+            <TextView android:id="@+id/move_input"
+                android:layout_span="2"
+                android:scrollHorizontally="false"
+                android:textColor="#fff"/>
+        </TableRow>
+
+        <TableRow android:layout_gravity="center">
+            <TextView android:text="@string/move_label_damage"
+                android:textColor="#fff"/>
+            <TextView android:text="@string/move_label_active_frames"
+                android:textColor="#fff"/>
+            <TextView android:text="@string/move_label_startup_frames"
+                android:textColor="#fff"/>
+            <TextView android:text="@string/move_label_recovery_frames"
+                android:textColor="#fff"/>
+            <TextView android:text="@string/move_label_advantage_frames"
+                android:textColor="#fff"/>
+            <TextView android:text="@string/move_label_block_type"
+                android:textColor="#fff"/>
+        </TableRow>
+        <TableRow android:layout_gravity="center">s
+            <TextView android:text=""
+                android:id="@+id/move_data_damage"
+                android:textColor="#fff"/>
+            <TextView android:text=""
+                android:id="@+id/move_data_active"
+                android:textColor="#fff"/>
+            <TextView android:text=""
+                android:id="@+id/move_data_startup"
+                android:textColor="#fff"/>
+            <TextView android:text=""
+                android:id="@+id/move_data_recovery"
+                android:textColor="#fff"/>
+            <TextView android:text=""
+                android:id="@+id/move_data_advantage"
+                android:textColor="#fff"/>
+            <TextView android:text=""
+                android:id="@+id/move_data_blocks"
+                android:textColor="#fff"/>
+        </TableRow>
+        <TableRow android:layout_gravity="center">
+            <TextView android:text=""
+                android:layout_span="6"
+                android:id="@+id/move_data_desc"
+                android:scrollHorizontally="false"
+                android:textColor="#fff"/>
+        </TableRow>
+
+    </TableLayout>
+</LinearLayout>
