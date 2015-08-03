@@ -28,22 +28,25 @@
                 android:scrollHorizontally="false"
                 android:layout_marginRight="30dp"/>
 
-            <TableLayout
+            <GridLayout
                 android:id="@+id/CharacterBreakdownTable"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/CharacterHeader"
+                android:numColumns="auto_fit"
+                android:verticalSpacing="20dp"
+                android:horizontalSpacing="20dp"
+                android:stretchMode="columnWidth"
+                android:gravity="center"
                 android:stretchColumns="*">
 
-                <TableRow android:id="@+id/CharacterHealthRow"
-                    android:layout_marginBottom="5dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
                     <TextView android:id="@+id/CharacterHealthHeader"
                         android:text="@string/CharacterHealthHeader"
                         android:textColor="#ffff"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_row="0"
+                        android:layout_column="0"/>
 
                     <TextView android:id="@+id/CharacterHealth"
                         android:text="@string/placeholder"
@@ -51,19 +54,20 @@
                         android:ellipsize="none"
                         android:maxLines="100"
                         android:scrollHorizontally="false"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </TableRow>
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_row="0"
+                        android:layout_column="2"/>
 
-                <TableRow android:id="@+id/CharacterTraitRow"
-                    android:layout_marginBottom="5dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+
                     <TextView android:id="@+id/CharacterTraitHeader"
                         android:text="@string/CharacterTraitHeader"
                         android:textColor="#ffff"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_columnSpan="4"
+                        android:layout_row="1"
+                        android:layout_column="0"/>
 
                     <TextView android:id="@+id/CharacterTrait"
                         android:text="@string/placeholder"
@@ -71,11 +75,12 @@
                         android:ellipsize="none"
                         android:maxLines="25"
                         android:scrollHorizontally="false"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </TableRow>
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_row="1"
+                        android:layout_column="2"/>
 
-            </TableLayout>
+            </GridLayout>
 
             <TextView
                 android:id="@+id/MoveHeader"
